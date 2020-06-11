@@ -29,7 +29,7 @@ private:
   Color background;
   vector<Object*> objects;
   vector<Light*> lights;
-  Point3f ensure_out_of_object(const Point3f &orig, const Vector3f &dir, const Vector3f &N);
+  Point3f move_epsilon(const Point3f &orig, const Vector3f &dir, const Vector3f &N);
   bool is_shadow(Light *light, const Point3f &hit, const Vector3f &N);
 };
 

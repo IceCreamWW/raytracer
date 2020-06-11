@@ -25,10 +25,12 @@ Color Scene::cast_ray(const Point3f &orig, const Vector3f &dir, int depth) {
   float specular_intensity = 0;
 
   Vector3f reflect_dir = glm::reflect(dir, N);
-
-  Point3f reflect_orig = ensure_out_of_object(hit, reflect_dir, N);
-
+  Point3f reflect_orig = move_epsilon(hit, reflect_dir, N);
   Color reflect_color = cast_ray(reflect_orig, reflect_dir, depth + 1);
+
+  Vector3f refract_dir = dir;
+  Point3f refract_orig = move_epsilon(hit, refract_dir, N);
+  Color refract_color = cast_ray(refract_orig, refract_dir, depth + 1);
 
   for (auto light : lights) {
     Vector3f light_dir = glm::normalize(hit - light->position);
@@ -48,7 +50,8 @@ Color Scene::cast_ray(const Point3f &orig, const Vector3f &dir, int depth) {
 
   return material.color * (material.kd * diffuse_intensity) +
          WHITE * (material.ks * specular_intensity) +
-         reflect_color * material.albedo;
+         reflect_color * material.albedo +
+         refract_color * material.refractive_index;
 }
 
 void Scene::render() {
@@ -108,7 +111,7 @@ bool Scene::trace(const Point3f &orig, const Vector3f &dir, Vector3f &N,
   return has_intersection;
 }
 
-Point3f Scene::ensure_out_of_object(const Point3f &orig, const Vector3f &dir,
+Point3f Scene::move_epsilon(const Point3f &orig, const Vector3f &dir,
                                     const Vector3f &N) {
   return glm::dot(dir, N) < 0 ? orig - N * 1e-3f : orig + N * 1e-3f;
 }
@@ -116,7 +119,7 @@ Point3f Scene::ensure_out_of_object(const Point3f &orig, const Vector3f &dir,
 
 bool Scene::is_shadow(Light *light, const Point3f &hit, const Vector3f &N) {
   Vector3f light_dir = glm::normalize(light->position - hit);
-  Point3f shadow_orig = ensure_out_of_object(hit, light_dir, N);
+  Point3f shadow_orig = move_epsilon(hit, light_dir, N);
   Point3f shadow_hit, v;
   Material m;
   return (trace(shadow_orig, light_dir, v, shadow_hit, m) &&

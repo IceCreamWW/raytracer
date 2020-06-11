@@ -21,17 +21,24 @@ int main() {
 
   Sphere* sphere = nullptr;
 
-  Material red_rubber(RED, 0, .15, 0.9f, .1f, 10, 0.1);
+  Material red_rubber(RED, .15, 0.9f, .1f, 10, 0.1, 0);
+  Material ivory(IVORY, .15, 0.6f, .3f, 50, 0.3, 0);
+  Material mirror(WHITE, .0, .0f, 10.f, 1450, 0.9, 0);
+  Material glass(Color(0.6, 0.7, 0.8),0, .0f, .5f, 125, 0.1, 0.8);
+
+
   sphere = new Sphere(Point3f(1.5,-.5,-18), 3, red_rubber);
   scene.push(sphere);
 
-  Material ivory(IVORY, 0, .15, 0.6f, .3f, 50, 0.3);
   sphere = new Sphere(Point3f(-3.5,0,-16), 2, ivory);
   scene.push(sphere);
 
-  Material mirror(WHITE, 0, .0, .0f, 10.f, 1450, 0.9);
   sphere = new Sphere(Point3f(7,5,-18), 4, mirror);
   scene.push(sphere);
+
+  sphere = new Sphere(Point3f(-1.0, -1.5, -12), 2, glass);
+  scene.push(sphere);
+
 
   scene.render();
 
