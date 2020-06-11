@@ -20,13 +20,22 @@ Color Scene::cast_ray(const Point3f &orig, const Vector3f &dir) {
   }
 
   float diffuse_intensity = 0;
+  float specular_intensity = 0;
+
   for (auto light : lights) {
-    Vector3f light_dir = light->position - hit;
+    Vector3f light_dir = glm::normalize(hit - light->position);
     diffuse_intensity +=
-        light->intensity_at(hit) * std::max(0.f, glm::dot(light_dir, N));
+        light->intensity_at(hit) * std::max(0.f, glm::dot(-light_dir, N));
+
+    specular_intensity +=
+        light->intensity_at(hit) *
+        std::max(0.f,
+                 powf(std::max(0.f, glm::dot(glm::reflect(-light_dir, N), dir)),
+                      material.n));
   }
 
-  return material.color * material.kd * diffuse_intensity;
+  return material.color *
+         (material.kd * diffuse_intensity + material.ks * specular_intensity);
 }
 
 void Scene::render() {

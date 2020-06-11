@@ -11,12 +11,15 @@ class Material {
 
 public:
   Material() {};
-  Material(const Color &color, float opacity, float ka, float kd)
-      : color(color), opacity(opacity), ka(ka), kd(kd) {}
+  Material(const Color &color, float opacity, float ka, float kd, float ks,
+           float n)
+      : color(color), opacity(opacity), ka(ka), kd(kd), ks(ks), n(n) {}
   Color color;
   float opacity;
   float ka;
   float kd;
+  float ks;
+  float n;
 };
 
 #endif // MRAYTRACER_MATERIAL_HPP
