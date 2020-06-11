@@ -6,6 +6,7 @@
 int main() {
   float fov = M_PI / 2;
   Scene scene(1024, 768, fov, Vector3f(0.2, 0.7, 0.8));
+//  Scene scene(1024, 768, fov);
 
 
   // Light *light = new Light(Point3f(-9, 14, -2), 1.4, 0.8);
@@ -21,10 +22,10 @@ int main() {
 
   Sphere* sphere = nullptr;
 
-  Material red_rubber(RED, .15, 0.9f, .1f, 10, 0.1, 0);
-  Material ivory(IVORY, .15, 0.6f, .3f, 50, 0.3, 0);
-  Material mirror(WHITE, .0, .0f, 10.f, 1450, 0.9, 0);
-  Material glass(Color(0.6, 0.7, 0.8),0, .0f, .5f, 125, 0.1, 0.8);
+  Material red_rubber(RED, .15, 0.9f, .1f, 10, 0.1, 0, 0);
+  Material ivory(IVORY, .15, 0.6f, .3f, 50, 0.3, 0, 0);
+  Material mirror(WHITE, .0, .0f, 10.f, 1450, 0.9, 0, 0);
+  Material glass(Color(0.6, 0.7, 0.8),0, .0f, .5f, 125, 0.1, 0.8, 1.5f);
 
 
   sphere = new Sphere(Point3f(1.5,-.5,-18), 3, red_rubber);

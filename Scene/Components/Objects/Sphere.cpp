@@ -23,7 +23,11 @@ bool Sphere::ray_intersect(const Point3f &orig, const Vector3f &dir,
   return t0 >= 0;
 }
 
-Vector3f Sphere::normal(const Point3f &point) {
+Vector3f Sphere::normal(const Point3f &point, const Vector3f &dir) {
   Vector3f n = glm::normalize(point - center);
   return n;
+//  if (glm::dot(dir, n) < 0)
+//    return n;
+//  else
+//    return -n;
 }

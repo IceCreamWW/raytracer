@@ -6,14 +6,12 @@
 #define MAX_DEPTH 4
 
 Scene::Scene(int width, int height, float fov)
-    : image(new Image(width, height)), fov(fov), background(Color(1)) {}
+    : image(new Image(width, height)), fov(fov), background(Color(0)) {}
 
 Scene::Scene(int width, int height, float fov, Color background)
     : image(new Image(width, height)), fov(fov), background(background) {}
 
 Color Scene::cast_ray(const Point3f &orig, const Vector3f &dir, int depth) {
-
-  float min_distance = std::numeric_limits<float>::max();
 
   Vector3f N, hit;
   Material material;
@@ -24,13 +22,23 @@ Color Scene::cast_ray(const Point3f &orig, const Vector3f &dir, int depth) {
   float diffuse_intensity = 0;
   float specular_intensity = 0;
 
-  Vector3f reflect_dir = glm::reflect(dir, N);
-  Point3f reflect_orig = move_epsilon(hit, reflect_dir, N);
-  Color reflect_color = cast_ray(reflect_orig, reflect_dir, depth + 1);
+  Color reflect_color(0);
+  if (material.albedo != 0) {
+    Vector3f reflect_dir = glm::reflect(dir, N);
+    Point3f reflect_orig = move_epsilon(hit, reflect_dir, N);
+    reflect_color = cast_ray(reflect_orig, reflect_dir, depth + 1);
+  }
 
-  Vector3f refract_dir = dir;
-  Point3f refract_orig = move_epsilon(hit, refract_dir, N);
-  Color refract_color = cast_ray(refract_orig, refract_dir, depth + 1);
+  Color refract_color(0);
+  if (material.opacity != 0) {
+    Vector3f refract_dir;
+    if (glm::dot(dir, N) < 0) // from outside to inside
+      refract_dir = glm::refract(dir, N, 1/material.eta);
+     else                     // from inside to outside
+      refract_dir = glm::refract(dir, -N, material.eta);
+    Point3f refract_orig = move_epsilon(hit, refract_dir, N);
+    refract_color = cast_ray(refract_orig, refract_dir, depth + 1);
+  }
 
   for (auto light : lights) {
     Vector3f light_dir = glm::normalize(hit - light->position);
@@ -51,7 +59,7 @@ Color Scene::cast_ray(const Point3f &orig, const Vector3f &dir, int depth) {
   return material.color * (material.kd * diffuse_intensity) +
          WHITE * (material.ks * specular_intensity) +
          reflect_color * material.albedo +
-         refract_color * material.refractive_index;
+         refract_color * material.opacity;
 }
 
 void Scene::render() {
@@ -62,7 +70,7 @@ void Scene::render() {
    *    z = width / (w * tan(fov / 2))
    */
 
-  float x = -image->width / 2 - 0.5f;
+  float x;
   float y = image->height / 2 + 0.5f;
   float z = -image->width / (2 * tan(fov / 2.f));
   Point3f orig(0);
@@ -104,7 +112,7 @@ bool Scene::trace(const Point3f &orig, const Vector3f &dir, Vector3f &N,
       has_intersection = true;
       min_distance = distance;
       hit = orig + dir * distance;
-      N = object->normal(hit);
+      N = object->normal(hit, dir);
       material = object->material;
     }
   }
