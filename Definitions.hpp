@@ -5,13 +5,13 @@
 #ifndef MRAYTRACER_DEFINITIONS_HPP
 #define MRAYTRACER_DEFINITIONS_HPP
 
-
 #include "glm/gtc/matrix_transform.hpp"
 typedef glm::vec3 Color;
 typedef glm::vec3 Vector3f;
 typedef glm::vec3 Point3f;
 
-#define RED Color(0.3, 0.1, 0.1)
-#define IVORY Color(0.4, 0.4, 0.3)
+#define RED Color(0.3f, 0.1f, 0.1f)
+#define IVORY Color(0.4f, 0.4f, 0.3f)
+#define WHITE Color(1.0f, 1.0f, 1.0f)
 
 #endif // MRAYTRACER_DEFINITIONS_HPP

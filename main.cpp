@@ -4,7 +4,7 @@
 #include <iostream>
 
 int main() {
-  float fov = M_PI / 3;
+  float fov = M_PI / 2;
   Scene scene(1024, 768, fov, Vector3f(0.2, 0.7, 0.8));
 
 
@@ -21,12 +21,16 @@ int main() {
 
   Sphere* sphere = nullptr;
 
-  Material red_rubber(RED, 0, .15, 0.9f, .1f, 10);
+  Material red_rubber(RED, 0, .15, 0.9f, .1f, 10, 0.1);
   sphere = new Sphere(Point3f(1.5,-.5,-18), 3, red_rubber);
   scene.push(sphere);
 
-  Material ivory(IVORY, 0, .15, 0.6f, .3f, 50);
+  Material ivory(IVORY, 0, .15, 0.6f, .3f, 50, 0.3);
   sphere = new Sphere(Point3f(-3,0,-16), 2, ivory);
+  scene.push(sphere);
+
+  Material mirror(WHITE, 0, .0, .0f, 10.f, 1450, 0.9);
+  sphere = new Sphere(Point3f(7,5,-18), 4, mirror);
   scene.push(sphere);
 
   scene.render();

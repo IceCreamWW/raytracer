@@ -15,7 +15,7 @@ class Scene {
 public:
   Scene(int width, int height, float fov);
   Scene(int width, int height, float fov, Color background);
-  Color cast_ray(const Point3f &orig, const Vector3f &dir);
+  Color cast_ray(const Point3f &orig, const Vector3f &dir, int depth);
   void render();
   void push(Object *object);
   void push(Light *light);

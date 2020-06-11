@@ -3,24 +3,31 @@
 //
 
 #include "Scene.hpp"
+#define MAX_DEPTH 4
+
 Scene::Scene(int width, int height, float fov)
     : image(new Image(width, height)), fov(fov), background(Color(1)) {}
 
 Scene::Scene(int width, int height, float fov, Color background)
     : image(new Image(width, height)), fov(fov), background(background) {}
 
-Color Scene::cast_ray(const Point3f &orig, const Vector3f &dir) {
+Color Scene::cast_ray(const Point3f &orig, const Vector3f &dir, int depth) {
 
   float min_distance = std::numeric_limits<float>::max();
 
   Vector3f N, hit;
   Material material;
-  if (!trace(orig, dir, N, hit, material)) {
+  if (depth > MAX_DEPTH || !trace(orig, dir, N, hit, material)) {
     return background;
   }
 
   float diffuse_intensity = 0;
   float specular_intensity = 0;
+
+  Vector3f reflect_dir = glm::reflect(-dir, N);
+  Point3f reflect_orig =
+      glm::dot(reflect_dir, N) < 0 ? hit + N * 1e-2f : hit - N * 1e-2f;
+  Color reflect_color = cast_ray(reflect_orig, reflect_dir, depth + 1);
 
   for (auto light : lights) {
     Vector3f light_dir = glm::normalize(hit - light->position);
@@ -34,8 +41,9 @@ Color Scene::cast_ray(const Point3f &orig, const Vector3f &dir) {
                       material.n));
   }
 
-  return material.color *
-         (material.kd * diffuse_intensity + material.ks * specular_intensity);
+  return material.color * (material.kd * diffuse_intensity) +
+         WHITE * (material.ks * specular_intensity) +
+         reflect_color * material.albedo;
 }
 
 void Scene::render() {
@@ -59,7 +67,7 @@ void Scene::render() {
       if (x == 0.5 && y == 0.5)
         x = x;
       Vector3f dir = glm::normalize(Vector3f(x, y, z));
-      image->pixels[i][j] = cast_ray(orig, dir);
+      image->pixels[i][j] = cast_ray(orig, dir, 0);
     }
   }
 }
