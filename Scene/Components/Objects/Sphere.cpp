@@ -3,11 +3,10 @@
 //
 
 #include "Sphere.hpp"
-Sphere::Sphere(Point3f center, float radius, Color color,
-               float alpha)
-    : Shape(color, alpha), center(center), radius(radius) {}
+Sphere::Sphere(Point3f center, float radius, const Material &material)
+    : Object(material), center(center), radius(radius) {}
 
- bool Sphere::ray_intersect(const glm::vec3 &orig, const glm::vec3 &dir,
+bool Sphere::ray_intersect(const Point3f &orig, const Vector3f &dir,
                            float &t0) {
   Vector3f vco = center - orig;            // o to c vector
   float op = glm::dot(vco, dir);            // project of oc on dir
@@ -22,4 +21,9 @@ Sphere::Sphere(Point3f center, float radius, Color color,
   // when origin of the ray is inside the sphere
   if (t0 < 0) t0 = t1;
   return true;
+}
+
+Vector3f Sphere::normal(const Point3f &point) {
+  Vector3f n = glm::normalize(point - center);
+  return n;
 }

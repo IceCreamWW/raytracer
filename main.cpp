@@ -1,19 +1,24 @@
-#include "Scene/Image.hpp"
-#include "Scene/Scene.hpp"
-#include "Shapes/Sphere.hpp"
-#include <Color.hpp>
+#include "Object.hpp"
+#include "Sphere.hpp"
+#include "Scene.hpp"
 #include <iostream>
 
 int main() {
   float fov = M_PI / 3;
-  Scene scene(1024, 768, fov);
+  Scene scene(1024, 768, fov, Vector3f(0.2, 0.7, 0.8));
 
-  auto *sphere = new Sphere(Point3f(-1,-.5,-8), 1, RED);
+
+  // Light *light = new Light(Point3f(-9, 14, -2), 1.4, 0.8);
+  Light *light = new Light(Point3f(-9, 8, -2), 2., 0.8);
+  scene.push(light);
+
+  Material red_rubber(RED, 0, .15, 0.9);
+  auto *sphere = new Sphere(Point3f(-1,-.5,-10), 1, red_rubber);
   scene.push(sphere);
 
-  sphere = new Sphere(Point3f(0,1,-12), 2, IVORY);
+  Material ivory_rubber(IVORY, 0, .15, 0.7);
+  sphere = new Sphere(Point3f(0,1,-14), 2, ivory_rubber);
   scene.push(sphere);
-
 
   scene.render();
 

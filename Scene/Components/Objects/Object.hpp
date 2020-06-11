@@ -2,21 +2,17 @@
 // Created by icecreamww on 2020/6/10.
 //
 
-#ifndef MRAYTRACER_SHAPE_HPP
-#define MRAYTRACER_SHAPE_HPP
+#ifndef MRAYTRACER_OBJECT_HPP
+#define MRAYTRACER_OBJECT_HPP
 
-#include "glm/gtc/matrix_transform.hpp"
-typedef glm::vec3 Color;
-typedef glm::vec3 Vector3f;
-typedef glm::vec3 Point3f;
+#include "Definitions.hpp"
+#include "Material.hpp"
 
-class Shape {
+class Object {
 public:
-  glm::vec3 color;
-  float alpha;
+  Material material;
 
-
-  Shape(const Color &color, float alpha=1);
+  Object(Material material);
 
   /**
    * calculate the intersection between a ray and a object
@@ -27,6 +23,11 @@ public:
    */
   virtual bool ray_intersect(const Point3f &orig, const Vector3f &dir,
                              float &t0);
+
+
+
+  // assume point is on surface of the shape
+  virtual Vector3f normal(const Point3f &point);
 };
 
-#endif // MRAYTRACER_SHAPE_HPP
+#endif // MRAYTRACER_OBJECT_HPP

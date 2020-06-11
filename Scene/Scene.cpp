@@ -13,16 +13,20 @@ Color Scene::cast_ray(const Point3f &orig, const Vector3f &dir) {
 
   float min_distance = std::numeric_limits<float>::max();
 
-  Color color = background;
-  for (auto shape : shapes) {
-    float distance;
-    bool has_intersection = shape->ray_intersect(orig, dir, distance);
-    if (has_intersection && distance < min_distance) {
-      color = shape->color;
-      min_distance = distance;
-    }
+  Vector3f N, hit;
+  Material material;
+  if (!trace(orig, dir, N, hit, material)) {
+    return background;
   }
-  return color;
+
+  float diffuse_intensity = 0;
+  for (auto light : lights) {
+    Vector3f light_dir = light->position - hit;
+    diffuse_intensity +=
+        light->intensity_at(hit) * std::max(0.f, glm::dot(light_dir, N));
+  }
+
+  return material.color * material.kd * diffuse_intensity;
 }
 
 void Scene::render() {
@@ -51,14 +55,33 @@ void Scene::render() {
   }
 }
 
-void Scene::write_to_file(string filename) {
-  image->write_to_file(filename);
-}
+void Scene::write_to_file(string filename) { image->write_to_file(filename); }
 
-void Scene::push(Shape *shape) { shapes.push_back(shape); }
+void Scene::push(Object *object) { objects.push_back(object); }
+
+void Scene::push(Light *light) { lights.push_back(light); }
 
 Scene::~Scene() {
   delete image;
-  for (auto shape : shapes)
-    delete shape;
+  for (auto object : objects)
+    delete object;
+  for (auto light : lights)
+    delete light;
+}
+
+bool Scene::trace(const Point3f &orig, const Vector3f &dir, Vector3f &N,
+                  Vector3f &hit, Material &material) {
+  float min_distance = std::numeric_limits<float>::max();
+  bool has_intersection = false;
+  for (auto object : objects) {
+    float distance;
+    if (object->ray_intersect(orig, dir, distance) && distance < min_distance) {
+      has_intersection = true;
+      min_distance = distance;
+      hit = orig + dir * distance;
+      N = object->normal(hit);
+      material = object->material;
+    }
+  }
+  return has_intersection;
 }
