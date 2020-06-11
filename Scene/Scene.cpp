@@ -24,13 +24,18 @@ Color Scene::cast_ray(const Point3f &orig, const Vector3f &dir, int depth) {
   float diffuse_intensity = 0;
   float specular_intensity = 0;
 
-  Vector3f reflect_dir = glm::reflect(-dir, N);
-  Point3f reflect_orig =
-      glm::dot(reflect_dir, N) < 0 ? hit + N * 1e-2f : hit - N * 1e-2f;
+  Vector3f reflect_dir = glm::reflect(dir, N);
+
+  Point3f reflect_orig = ensure_out_of_object(hit, reflect_dir, N);
+
   Color reflect_color = cast_ray(reflect_orig, reflect_dir, depth + 1);
 
   for (auto light : lights) {
     Vector3f light_dir = glm::normalize(hit - light->position);
+
+    if (is_shadow(light, hit, N))
+      continue;
+
     diffuse_intensity +=
         light->intensity_at(hit) * std::max(0.f, glm::dot(-light_dir, N));
 
@@ -101,4 +106,20 @@ bool Scene::trace(const Point3f &orig, const Vector3f &dir, Vector3f &N,
     }
   }
   return has_intersection;
+}
+
+Point3f Scene::ensure_out_of_object(const Point3f &orig, const Vector3f &dir,
+                                    const Vector3f &N) {
+  return glm::dot(dir, N) < 0 ? orig - N * 1e-3f : orig + N * 1e-3f;
+}
+
+
+bool Scene::is_shadow(Light *light, const Point3f &hit, const Vector3f &N) {
+  Vector3f light_dir = glm::normalize(light->position - hit);
+  Point3f shadow_orig = ensure_out_of_object(hit, light_dir, N);
+  Point3f shadow_hit, v;
+  Material m;
+  return (trace(shadow_orig, light_dir, v, shadow_hit, m) &&
+          glm::length(shadow_hit - shadow_orig) <
+          glm::length(hit - light->position));
 }

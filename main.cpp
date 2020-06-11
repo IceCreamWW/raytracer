@@ -26,7 +26,7 @@ int main() {
   scene.push(sphere);
 
   Material ivory(IVORY, 0, .15, 0.6f, .3f, 50, 0.3);
-  sphere = new Sphere(Point3f(-3,0,-16), 2, ivory);
+  sphere = new Sphere(Point3f(-3.5,0,-16), 2, ivory);
   scene.push(sphere);
 
   Material mirror(WHITE, 0, .0, .0f, 10.f, 1450, 0.9);

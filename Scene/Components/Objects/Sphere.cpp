@@ -20,7 +20,7 @@ bool Sphere::ray_intersect(const Point3f &orig, const Vector3f &dir,
 
   // when origin of the ray is inside the sphere
   if (t0 < 0) t0 = t1;
-  return true;
+  return t0 >= 0;
 }
 
 Vector3f Sphere::normal(const Point3f &point) {
