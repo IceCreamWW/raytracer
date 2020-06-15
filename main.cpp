@@ -5,6 +5,7 @@
 #include "Triangle.hpp"
 #include "Circle.hpp"
 #include "Cone.hpp"
+#include "Plane.hpp"
 #include <iostream>
 
 void push_cone(Scene *scene, const Point3f &center, float radius,
@@ -62,8 +63,9 @@ int main() {
   float fov = M_PI * 2 / 3;
 
   Scene scene(1920, 1080, fov, Vector3f(0.2, 0.7, 0.8), 0.7);
+//  Scene scene(800, 600, fov, Vector3f(0.2, 0.7, 0.8), 0.7);
   Image *pixelmap = new Image();
-  pixelmap->read_from_file("bg360.ppm");
+  pixelmap->read_from_file("envmap.ppm");
   scene.set_pixel_map(pixelmap);
 
   // Light *light = new Light(Point3f(-9, 14, -2), 1.4, 0.8);
@@ -71,7 +73,7 @@ int main() {
 
   light = new Light(Point3f(-20, 20, 20), 1.5, 0);
   scene.push(light);
-
+//
   light = new Light(Point3f(30, 50, -25), 1.8, 0);
   scene.push(light);
 
@@ -86,30 +88,39 @@ int main() {
   Material red_rubber(RED, 1, 0.9f, .1f, 10, 0.1, 0, 0);
   Material ivory(IVORY, .15, 0.6f, .3f, 50, 0.3, 0, 0);
   Material mirror(WHITE, .0, .0f, 10.f, 1450, 0.9, 0, 0);
-  Material glass(Color(0.6, 0.7, 0.8), 0, .0f, .5f, 125, 0.1, 0.8, 1.5f);
+  Material glass(Color(0.6, 0.7, 0.8), 0, .0f, .5f, 125, 0.1, 0.8, 1.3f);
 
-//  sphere = new Sphere(Point3f(1.5, -.5, -18), 3, red_rubber);
-//  scene.push(sphere);
+//  Material red_rubber(RED, 1, 0.9f, .0f, 10, 0.0, 0, 0);
+//  Material ivory(IVORY, 1, 0.6f, .0f, 50, 0.0, 0, 0);
+//  Material mirror(WHITE, 1, .0f, 0.f, 1450, 0.0, 0, 0);
+//  Material glass(Color(0.6, 0.7, 0.8), 1, .0f, .0f, 125, 0.0, 0.0, 1.5f);
+
+
+  sphere = new Sphere(Point3f(2.5, -.5, -19), 3.5, red_rubber);
+  scene.push(sphere);
+
+  sphere = new Sphere(Point3f(-2.5, 1.8, -11), 1.5, ivory);
+  scene.push(sphere);
+
+  sphere = new Sphere(Point3f(3.f, 10, -23), 5.4, mirror);
+  scene.push(sphere);
 //
-//  sphere = new Sphere(Point3f(-3.5, 0, -16), 2, ivory);
-//  scene.push(sphere);
-//
-//  sphere = new Sphere(Point3f(7, 5, -18), 4, mirror);
-//  scene.push(sphere);
-//
-//  sphere = new Sphere(Point3f(-1.0, -1.5, -12), 2, glass);
-//  scene.push(sphere);
+  sphere = new Sphere(Point3f(-1.f, 0.0, -8), 1.0, glass);
+  scene.push(sphere);
 
   a = Point3f(-4.5, -1, -10);
   b = Point3f(-3.5, -1, -10);
   c = Point3f(-2.5, -1, -6);
   d = Point3f(-4.5, -1, -6);
   e = Point3f(-3.5, 2, -8);
-  // push_pyramid(&scene, a, b, c, d, e, ivory);
+  push_pyramid(&scene, a, b, c, d, e, ivory);
 
-//  push_cylinder(&scene, Point3f(0, -7, -10), 1, 1, red_rubber);
+  push_cylinder(&scene, Point3f(7.5, -2, -14), 1.3, 7, glass);
+//  push_cylinder(&scene, Point3f(5, -2, -19), 1, 5, orange_rubber);
+//  push_cylinder(&scene, Point3f(-5, -2, -10), 1, 5, orange_rubber);
+//  push_cylinder(&scene, Point3f(5, -2, -10), 1, 5, orange_rubber);
 
-//  push_cone(&scene, Point3f(0, 8, -10), 2, 2, red_rubber);
+  push_cone(&scene, Point3f(14, 3, -19), 2, 5, red_rubber);
   scene.render();
 
   scene.write_to_file("test.ppm");

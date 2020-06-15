@@ -35,7 +35,7 @@ bool Cone::ray_intersect(const Point3f &orig, const Vector3f &dir, float &t0) {
 
   if (t0 < 0) return false;
 
-  Point3f hit = t0 * dir;
+  Point3f hit = orig + t0 * dir;
 
   return center.y - hit.y > 0 and center.y - hit.y < height;
 }
