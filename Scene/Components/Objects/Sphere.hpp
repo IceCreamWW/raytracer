@@ -13,7 +13,7 @@ public:
   virtual bool ray_intersect(const Point3f &orig, const Vector3f &dir,
                      float &t0) override;
 
-  Vector3f normal(const Point3f &point, const Vector3f &dir) override;
+  Vector3f normal(const Point3f &point) override;
 
   Point3f center;
   float radius;

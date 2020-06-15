@@ -27,7 +27,7 @@ public:
 
 
   // assume point is on surface of the shape
-  virtual Vector3f normal(const Point3f &point, const Vector3f &dir);
+  virtual Vector3f normal(const Point3f &point);
 };
 
 #endif // MRAYTRACER_OBJECT_HPP

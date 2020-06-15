@@ -19,10 +19,14 @@ public:
   int height;
   glm::vec3 **pixels;
 
-  Image(int width, int image);
+  Image() {};
+  Image(int width, int height);
   float aspect_ratio();
   void write_to_file(const string &filename);
+  void read_from_file(const string &filename);
   virtual ~Image();
+private:
+  void create_image(int width, int heigth);
 };
 
 #endif // MRAYTRACER_IMAGE_HPP

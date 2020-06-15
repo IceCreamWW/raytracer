@@ -3,20 +3,20 @@
 //
 
 #include "Scene.hpp"
-#define MAX_DEPTH 4
+#define MAX_DEPTH 6
 
 Scene::Scene(int width, int height, float fov)
-    : image(new Image(width, height)), fov(fov), background(Color(0)) {}
+    : image(new Image(width, height)), fov(fov), background_color(Color(0)), Ia(0.3), pixelmap(nullptr) {}
 
-Scene::Scene(int width, int height, float fov, Color background)
-    : image(new Image(width, height)), fov(fov), background(background) {}
+Scene::Scene(int width, int height, float fov, Color background, float Ia)
+    : image(new Image(width, height)), fov(fov), background_color(background), Ia(Ia), pixelmap(nullptr) {}
 
 Color Scene::cast_ray(const Point3f &orig, const Vector3f &dir, int depth) {
 
   Vector3f N, hit;
   Material material;
   if (depth > MAX_DEPTH || !trace(orig, dir, N, hit, material)) {
-    return background;
+    return background(dir);
   }
 
   float diffuse_intensity = 0;
@@ -29,13 +29,14 @@ Color Scene::cast_ray(const Point3f &orig, const Vector3f &dir, int depth) {
     reflect_color = cast_ray(reflect_orig, reflect_dir, depth + 1);
   }
 
+  bool is_inside = glm::dot(dir, N) > 0;
+  N = is_inside ? -N : N;
+
   Color refract_color(0);
   if (material.opacity != 0) {
     Vector3f refract_dir;
-    if (glm::dot(dir, N) < 0) // from outside to inside
-      refract_dir = glm::refract(dir, N, 1/material.eta);
-     else                     // from inside to outside
-      refract_dir = glm::refract(dir, -N, material.eta);
+    float eta = is_inside ? material.eta : 1 / material.eta;
+    refract_dir = glm::refract(dir, N, eta);
     Point3f refract_orig = move_epsilon(hit, refract_dir, N);
     refract_color = cast_ray(refract_orig, refract_dir, depth + 1);
   }
@@ -59,7 +60,8 @@ Color Scene::cast_ray(const Point3f &orig, const Vector3f &dir, int depth) {
   return material.color * (material.kd * diffuse_intensity) +
          WHITE * (material.ks * specular_intensity) +
          reflect_color * material.albedo +
-         refract_color * material.opacity;
+         refract_color * material.opacity +
+         Ia * material.color * material.ka;
 }
 
 void Scene::render() {
@@ -96,6 +98,7 @@ void Scene::push(Light *light) { lights.push_back(light); }
 
 Scene::~Scene() {
   delete image;
+  if (pixelmap) delete pixelmap;
   for (auto object : objects)
     delete object;
   for (auto light : lights)
@@ -112,7 +115,7 @@ bool Scene::trace(const Point3f &orig, const Vector3f &dir, Vector3f &N,
       has_intersection = true;
       min_distance = distance;
       hit = orig + dir * distance;
-      N = object->normal(hit, dir);
+      N = object->normal(hit);
       material = object->material;
     }
   }
@@ -133,4 +136,27 @@ bool Scene::is_shadow(Light *light, const Point3f &hit, const Vector3f &N) {
   return (trace(shadow_orig, light_dir, v, shadow_hit, m) &&
           glm::length(shadow_hit - shadow_orig) <
           glm::length(hit - light->position));
+}
+void Scene::set_pixel_map(Image *pixelmap_image) {
+  pixelmap = pixelmap_image;
+}
+Color Scene::background(const Vector3f &dir) {
+  if (pixelmap == nullptr)
+    return background_color;
+
+  Vector2f dir_xz = glm::normalize(Vector2f(dir.x, dir.z));
+  float offset_x = asin(std::max(-1.f, std::min(1.f, glm::dot(dir_xz, Vector2f(0,-1)))));
+  if (dir.x > 0)
+    offset_x = M_PI - offset_x;
+  if (offset_x < 0)
+    offset_x = 2 * M_PI + offset_x;
+  offset_x /= (2 * M_PI);
+  int pixel_x = (int)(pixelmap->width * offset_x);
+
+  float offset_y = asin(std::max(-1.f, std::min(1.f, glm::dot(dir, Vector3f(0,1,0)))));
+  offset_y = M_PI / 2 - offset_y;
+  offset_y /= M_PI;
+  int pixel_y = (int)(pixelmap->height * offset_y);
+
+  return pixelmap->pixels[pixel_y][pixel_x];
 }
