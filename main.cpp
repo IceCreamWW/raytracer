@@ -73,7 +73,7 @@ int main() {
 
   light = new Light(Point3f(-20, 20, 20), 1.5, 0);
   scene.push(light);
-//
+
   light = new Light(Point3f(30, 50, -25), 1.8, 0);
   scene.push(light);
 
@@ -85,8 +85,8 @@ int main() {
 
   Point3f a, b, c, d, e, center;
 
-  Material red_rubber(RED, 1, 0.9f, .1f, 10, 0.1, 0, 0);
-  Material ivory(IVORY, .15, 0.6f, .3f, 50, 0.3, 0, 0);
+  Material red_rubber(RED, 1, 0.9f, .1f, 10, 0.0, 0, 0);
+  Material ivory(IVORY, .15, 0.6f, .3f, 50, 0.0, 0, 0);
   Material mirror(WHITE, .0, .0f, 10.f, 1450, 0.9, 0, 0);
   Material glass(Color(0.6, 0.7, 0.8), 0, .0f, .5f, 125, 0.1, 0.8, 1.3f);
 
@@ -104,7 +104,7 @@ int main() {
 
   sphere = new Sphere(Point3f(3.f, 10, -23), 5.4, mirror);
   scene.push(sphere);
-//
+
   sphere = new Sphere(Point3f(-1.f, 0.0, -8), 1.0, glass);
   scene.push(sphere);
 

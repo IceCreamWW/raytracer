@@ -14,7 +14,7 @@ public:
 
   float intensity;
   float attenuation;
-  Vector3f position;
+  Point3f position;
 };
 
 #endif // MRAYTRACER_LIGHT_HPP
